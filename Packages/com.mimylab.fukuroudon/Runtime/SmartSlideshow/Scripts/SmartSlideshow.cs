@@ -95,6 +95,11 @@ namespace MimyLab.FukuroUdon
             else { FeedbackController(); }
         }
 
+        [Header("フェード用オーバーレイ")]
+        public Renderer fadeOverlayRenderer; // 黒QuadのRenderer。World-Space UIの場合はImageではなく、その上にRawImage→Quadに変えるか、下記コメント参照
+        [Tooltip("フェードアウト/インそれぞれの秒数")]
+        public float fadeDuration = 0.5f;
+
         // 同期用変数
         [UdonSynced(UdonSyncMode.None)]
         int g_SelectedIndex = 0;
@@ -106,6 +111,10 @@ namespace MimyLab.FukuroUdon
         int[] _selectedPage;
         int[] _endPage;
         bool _activeAutoSlide = false;
+
+        private bool _isTransition;
+        private float _t;
+        private int _phase; // 0: idle, 1: fadeOut, 2: fadeIn
 
         void OnValidate()
         {
@@ -121,6 +130,8 @@ namespace MimyLab.FukuroUdon
             {
                 _endPage[i] = literatures[i].EndPage;
             }
+
+            SetOverlayAlpha(0f); // 初期は透明
 
             RefreshView();
             FeedbackController();
@@ -248,7 +259,7 @@ namespace MimyLab.FukuroUdon
         /******************************
          Local events
         ******************************/
-        void RefreshView()
+        void ApplySlideImmediate()
         {
             for (int i = 0; i < literatures.Length; i++)
             {
@@ -258,6 +269,24 @@ namespace MimyLab.FukuroUdon
                     literatures[i].Page = _selectedPage[i];
                 }
             }
+        }
+
+        // 外部から呼ばれる想定：従来の RefreshView() をこれに置き換え
+        public void RefreshView()
+        {
+            if (fadeOverlayRenderer == null)
+            {
+                // フェード幕が無ければ従来通り即時反映
+                ApplySlideImmediate();
+                return;
+            }
+
+            if (_isTransition) return; // 多重起動防止
+
+            // フェード開始
+            _isTransition = true;
+            _phase = 1; // fadeOut
+            _t = 0f;
         }
 
         void FeedbackController()
@@ -275,6 +304,57 @@ namespace MimyLab.FukuroUdon
                     controllers[i].SetSettingsInteractable(true, true, !(AutoSlide > 0.0f));
                     controllers[i].SetAutoSlider(AutoSlide);
                 }
+            }
+        }
+
+        void Update()
+        {
+            if (!_isTransition) return;
+
+            _t += Time.deltaTime;
+
+            if (_phase == 1)
+            {
+                // フェードアウト（黒幕のαを 0 → 1）
+                float a = Mathf.Clamp01(_t / fadeDuration);
+                SetOverlayAlpha(a);
+
+                if (a >= 1f)
+                {
+                    // 真っ黒になったら中身を差し替え
+                    ApplySlideImmediate();
+
+                    // 次はフェードイン
+                    _phase = 2;
+                    _t = 0f;
+                }
+            }
+            else if (_phase == 2)
+            {
+                // フェードイン（黒幕のαを 1 → 0）
+                float a = 1f - Mathf.Clamp01(_t / fadeDuration);
+                SetOverlayAlpha(a);
+
+                if (a <= 0f)
+                {
+                    _isTransition = false;
+                    _phase = 0;
+                    _t = 0f;
+                }
+            }
+        }
+
+        private void SetOverlayAlpha(float a)
+        {
+            if (fadeOverlayRenderer == null) return;
+
+            // マテリアルの Color を直接いじる（Unlit/Transparent 等で有効）
+            var mat = fadeOverlayRenderer.material;
+            if (mat.HasProperty("_Color"))
+            {
+                Color c = mat.color;
+                c.a = a;
+                mat.color = c;
             }
         }
     }
