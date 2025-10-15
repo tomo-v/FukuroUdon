@@ -71,12 +71,12 @@ namespace MimyLab.FukuroUdon
         {
             Initialize();
 
-            if (assignEvent == PlayerAudioRegulatorPickupEventType.OnPickupUseDown)
+            if (assignEvent == PlayerAudioRegulatorPickupEventType.OnPickupUseDown && !linkedSwitch.IsPlayerAssigned())
             {
                 linkedSwitch.AssignPlayer(_localPlayer);
             }
 
-            if (releaseEvent == PlayerAudioRegulatorPickupEventType.OnPickupUseDown)
+            else if (releaseEvent == PlayerAudioRegulatorPickupEventType.OnPickupUseDown && linkedSwitch.IsPlayerAssigned())
             {
                 linkedSwitch.ReleasePlayer();
             }

@@ -103,5 +103,10 @@ namespace MimyLab.FukuroUdon
         {
             return target.playerId == _assignedPlayerId;
         }
+
+        public bool IsPlayerAssigned()
+        {
+            return _assignedPlayerId != -1;
+        }
     }
 }
