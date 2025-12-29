@@ -9,6 +9,7 @@ namespace MimyLab.FukuroUdon
     using UdonSharp;
     using UnityEngine;
     using VRC.SDKBase;
+    using TMPro;
 
     public enum PlayerAudioRegulatorSwitchMode
     {
@@ -26,8 +27,26 @@ namespace MimyLab.FukuroUdon
         [Header("Option Settings")]
         public PlayerAudioRegulatorSwitchMode switchMode = default;
 
+        [SerializeField]
+        private TextMeshPro _assignedPlayerNameDisplay;
+
         [UdonSynced]
         private int _assignedPlayerId = -1;
+
+        [UdonSynced,FieldChangeCallback(nameof(AssignedPlayerName))]
+        private string _assignedPlayerName = "";
+        public string AssignedPlayerName
+        {
+            get => _assignedPlayerName;
+            set
+            {
+                _assignedPlayerName = value;
+                if (_assignedPlayerNameDisplay != null)
+                {
+                    _assignedPlayerNameDisplay.text = value;
+                }
+            }
+        }
 
         private VRCPlayerApi _localPlayer;
 
@@ -50,6 +69,10 @@ namespace MimyLab.FukuroUdon
             if (!EligiblePlayer(_localPlayer)) { return; }
 
             Networking.SetOwner(_localPlayer, this.gameObject);
+            if (_assignedPlayerNameDisplay != null)
+            {
+                Networking.SetOwner(_localPlayer, _assignedPlayerNameDisplay.gameObject);
+            }
 
             if (switchMode == PlayerAudioRegulatorSwitchMode.Toggle)
             {
@@ -82,6 +105,7 @@ namespace MimyLab.FukuroUdon
             if (!_localPlayer.IsOwner(this.gameObject)) { return; }
 
             _assignedPlayerId = target.playerId;
+            AssignedPlayerName = target.displayName;
             RequestSerialization();
 
         }
@@ -96,6 +120,7 @@ namespace MimyLab.FukuroUdon
             if (!_localPlayer.IsOwner(this.gameObject)) { return; }
 
             _assignedPlayerId = -1;
+            AssignedPlayerName = "";
             RequestSerialization();
         }
 
