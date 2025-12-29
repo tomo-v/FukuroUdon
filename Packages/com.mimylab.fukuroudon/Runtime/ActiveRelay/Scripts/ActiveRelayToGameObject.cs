@@ -8,6 +8,7 @@ namespace MimyLab.FukuroUdon
 {
     using UdonSharp;
     using UnityEngine;
+    using VRC.SDKBase.Editor.Attributes;
 
     public enum ActiveRelayEventType
     {
@@ -18,7 +19,7 @@ namespace MimyLab.FukuroUdon
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Active-Relay#activerelay-to-gameobject")]
     [Icon(ComponentIconPath.FukuroUdon)]
-    [AddComponentMenu("Fukuro Udon/Active Relay/ActiveRelay to GameObject")]
+    [AddComponentMenu("Fukuro Udon/ActiveRelay to/ActiveRelay to GameObject")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class ActiveRelayToGameObject : UdonSharpBehaviour
     {
@@ -30,7 +31,8 @@ namespace MimyLab.FukuroUdon
         private bool _invert = false;
 
         [Space]
-        [SerializeField, Min(0.0f), Tooltip("sec, No delay if 0")]
+        [HelpBox("Disable delay if Dlelay Time is 0", HelpBoxAttribute.MessageType.Info)]
+        [SerializeField, Min(0.0f), Tooltip("sec")]
         private float _delayTime = 0.0f;
         [SerializeField]
         private bool _delayLatestOnly = false;

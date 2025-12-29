@@ -8,14 +8,19 @@ namespace MimyLab.FukuroUdon
 {
     using UdonSharp;
     using UnityEngine;
+    using VRC.SDKBase;
+    using VRC.SDK3.Rendering;
+
+#if !COMPILER_UDONSHARP && UNITY_EDITOR
+    using UnityEditor;
+#endif
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Ambient-Effect-Assistant#boundary-culling")]
     [Icon(ComponentIconPath.FukuroUdon)]
     [AddComponentMenu("Fukuro Udon/Ambient Effect Assistant/Boundary Culling")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class BoundaryCulling : IViewPointReceiver
+    public class BoundaryCulling : UdonSharpBehaviour
     {
-        [Header("Targets")]
         [SerializeField]
         private Renderer[] _renderers = new Renderer[0];
         [SerializeField]
@@ -26,8 +31,33 @@ namespace MimyLab.FukuroUdon
         private Transform _point;
         [SerializeField]
         private Vector3 _normal = Vector3.up;
+        [SerializeField, Tooltip("Include the VRC Camera and Drone for culling checks")]
+        private bool _includeVRCCamera = false;
 
-        private bool _prevEnabled = true;
+        private VRCCameraSettings _screenCamera;
+        private VRCCameraSettings _photoCamera;
+        private bool _wasIn = false;
+
+#if !COMPILER_UDONSHARP && UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            var point = _point ? _point : this.transform;
+            var pos = point.position;
+            var normal = (_normal != Vector3.zero) ? _normal.normalized : Vector3.up;
+            var normalRotation = point.rotation * Quaternion.LookRotation(normal);
+            var size = HandleUtility.GetHandleSize(pos);
+            var plane = new Vector3[]
+            {
+                normalRotation * new Vector3(size, size, 0) + pos,
+                normalRotation * new Vector3(-size, size, 0) + pos,
+                normalRotation * new Vector3(-size, -size, 0) + pos,
+                normalRotation * new Vector3(size, -size, 0) + pos,
+            };
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(pos, normalRotation * Vector3.forward * size + pos);
+            Gizmos.DrawLineStrip(plane, true);
+        }
+#endif
 
         private bool _initialized = false;
         private void Initialize()
@@ -35,24 +65,43 @@ namespace MimyLab.FukuroUdon
             if (_initialized) { return; }
 
             if (!_point) _point = transform;
-            ToggleTargetsEnabled(!_prevEnabled);
+            _screenCamera = VRCCameraSettings.ScreenCamera;
+            _photoCamera = VRCCameraSettings.PhotoCamera;
+            // ClientSim 対策
+            if (_photoCamera == null) { _includeVRCCamera = false; }
+
+            ToggleTargetsEnabled(_wasIn);
 
             _initialized = true;
         }
-
-        public override void ReceiveViewPoint(Vector3 position, Quaternion rotation)
+        private void Start()
         {
             Initialize();
+        }
 
-            var direction = position - _point.position;
-            var borderNormal = _point.rotation * _normal;
-            ToggleTargetsEnabled(Vector3.Dot(borderNormal, direction) >= 0);
+        public override void PostLateUpdate()
+        {
+            if (!Utilities.IsValid(_screenCamera)) { return; }
+
+            var direction = _screenCamera.Position - _point.position;
+            var borderNormal = (_normal != Vector3.zero) ? _point.rotation * _normal : Vector3.up;
+            var isIn = Vector3.Dot(borderNormal, direction) >= 0.0f;
+
+            if (_includeVRCCamera && _photoCamera.Active && !isIn)
+            {
+                direction = _photoCamera.Position - _point.position;
+                isIn = Vector3.Dot(borderNormal, direction) >= 0.0f;
+            }
+
+            if (_wasIn != isIn)
+            {
+                ToggleTargetsEnabled(isIn);
+                _wasIn = isIn;
+            }
         }
 
         private void ToggleTargetsEnabled(bool value)
         {
-            if (value == _prevEnabled) { return; }
-
             foreach (var target in _renderers)
             {
                 if (target) { target.enabled = value; }
@@ -61,8 +110,6 @@ namespace MimyLab.FukuroUdon
             {
                 if (target) { target.SetActive(value); }
             }
-
-            _prevEnabled = value;
         }
     }
 }

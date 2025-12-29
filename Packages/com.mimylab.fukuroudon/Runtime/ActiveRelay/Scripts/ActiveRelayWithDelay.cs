@@ -8,16 +8,18 @@ namespace MimyLab.FukuroUdon
 {
     using UdonSharp;
     using UnityEngine;
+    using VRC.SDKBase.Editor.Attributes;
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Active-Relay#activerelay-with-delay")]
     [Icon(ComponentIconPath.FukuroUdon)]
-    [AddComponentMenu("Fukuro Udon/Active Relay/ActiveRelay with Delay")]
+    [AddComponentMenu("Fukuro Udon/ActiveRelay with/ActiveRelay with Delay")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class ActiveRelayWithDelay : UdonSharpBehaviour
     {
-        [SerializeField, Min(0.0f), Tooltip("sec, No delay if 0")]
+        [HelpBox("Disable delay if Dlelay Time is 0", HelpBoxAttribute.MessageType.Info)]
+        [SerializeField, Min(0.0f), Tooltip("sec")]
         private float _delayTimeToInactive = 0.0f;
-        [SerializeField, Min(0.0f), Tooltip("sec, No delay if 0")]
+        [SerializeField, Min(0.0f), Tooltip("sec")]
         private float _delayTimeToActive = 0.0f;
 
         private int _activateDelayedCount = 0;
