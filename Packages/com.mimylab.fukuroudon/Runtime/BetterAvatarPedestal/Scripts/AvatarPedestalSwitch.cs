@@ -13,7 +13,7 @@ namespace MimyLab.FukuroUdon
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Better-AvatarPedestal#%E4%BD%BF%E3%81%84%E6%96%B9")]
     [Icon(ComponentIconPath.FukuroUdon)]
-    [AddComponentMenu("Fukuro Udon/General/AvatarPedestal Switch")]
+    [AddComponentMenu("Fukuro Udon/Better AvatarPedestal/AvatarPedestal Switch")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class AvatarPedestalSwitch : UdonSharpBehaviour
     {
@@ -22,7 +22,7 @@ namespace MimyLab.FukuroUdon
 
         private void Reset()
         {
-            avatarPedestal = GetComponentInChildren<VRCAvatarPedestal>();
+            avatarPedestal = GetComponentInChildren<VRCAvatarPedestal>(true);
         }
 
         private bool _initialized = false;
@@ -30,16 +30,17 @@ namespace MimyLab.FukuroUdon
         {
             if (_initialized) { return; }
 
-            if (!avatarPedestal) { avatarPedestal = GetComponentInChildren<VRCAvatarPedestal>(); }
+            if (!avatarPedestal) { avatarPedestal = GetComponentInChildren<VRCAvatarPedestal>(true); }
 
             _initialized = true;
         }
-        private void Start()
-        {
-            Initialize();
-        }
 
         public override void Interact()
+        {
+            SetAvatarUse();
+        }
+
+        public void SetAvatarUse()
         {
             Initialize();
 

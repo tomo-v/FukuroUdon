@@ -13,7 +13,7 @@ namespace MimyLab.FukuroUdon
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Ambient-Effect-Assistant#viewpoint-tracker")]
     [Icon(ComponentIconPath.FukuroUdon)]
-    [AddComponentMenu("Fukuro Udon/General/ViewPoint Tracker")]
+    [AddComponentMenu("Fukuro Udon/General/View Point Tracker (Obsolete)")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class ViewPointTracker : UdonSharpBehaviour
     {
@@ -65,7 +65,7 @@ namespace MimyLab.FukuroUdon
 
                 foreach (var target in _viewPointReceiver)
                 {
-                    if (target && target.gameObject.activeInHierarchy && target.enabled)
+                    if (target && target.enabled && target.gameObject.activeInHierarchy)
                     {
                         target.OnViewPointChanged();
                     }
@@ -75,7 +75,7 @@ namespace MimyLab.FukuroUdon
                 {
                     foreach (var target in _positionReceiver)
                     {
-                        if (target && target.gameObject.activeInHierarchy && target.enabled)
+                        if (target && target.enabled && target.gameObject.activeInHierarchy)
                         {
                             target.SetProgramVariable(ValNameViewPointPosition, viewPointPosition);
                         }
@@ -86,7 +86,7 @@ namespace MimyLab.FukuroUdon
                 {
                     foreach (var target in _rotationReceiver)
                     {
-                        if (target && target.gameObject.activeInHierarchy && target.enabled)
+                        if (target && target.enabled && target.gameObject.activeInHierarchy)
                         {
                             target.SetProgramVariable(ValNameViewPointRotation, viewPointRotation);
                         }

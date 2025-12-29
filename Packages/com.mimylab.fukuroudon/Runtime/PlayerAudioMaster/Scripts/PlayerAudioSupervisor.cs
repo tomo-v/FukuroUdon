@@ -16,7 +16,6 @@ namespace MimyLab.FukuroUdon
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class PlayerAudioSupervisor : UdonSharpBehaviour
     {
-        public const int HardCap = 90;
         public const string PlayerAudioChannelTagName = "PlayerAudioChannel";
         public const string PlayerAudioOverrideTagName = "PlayerAudioOverride";
 
@@ -28,9 +27,9 @@ namespace MimyLab.FukuroUdon
         [Header("Player Voice Settings")]
         [Range(0f, 24f)]
         public float defaultVoiceGain = 15f;
-        [Range(0f, 999999.9f)]
+        [Range(0f, 1000000.0f)]
         public float defaultVoiceDistanceNear = 0f;
-        [Range(0f, 999999.9f)]
+        [Range(0f, 1000000.0f)]
         public float defaultVoiceDistanceFar = 25f;
 
         [Header("Player Voice Advance Settings")]
@@ -147,7 +146,7 @@ namespace MimyLab.FukuroUdon
             SetDefaultPlayerVoice(player);
             SetDefaultAvatarAudio(player);
 
-            SendCustomEventDelayedFrames(nameof(_RefreshPlayerList), 1);
+            _RefreshPlayerList();
         }
 
         public override void OnPlayerLeft(VRCPlayerApi player)

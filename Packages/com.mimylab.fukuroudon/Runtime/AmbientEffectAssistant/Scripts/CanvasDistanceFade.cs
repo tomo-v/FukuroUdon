@@ -8,12 +8,14 @@ namespace MimyLab.FukuroUdon
 {
     using UdonSharp;
     using UnityEngine;
+    using VRC.SDKBase;
+    using VRC.SDK3.Rendering;
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Ambient-Effect-Assistant#canvas-distance-fade")]
     [Icon(ComponentIconPath.FukuroUdon)]
     [AddComponentMenu("Fukuro Udon/Ambient Effect Assistant/Canvas Distance Fade")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class CanvasDistanceFade : IViewPointReceiver
+    public class CanvasDistanceFade : UdonSharpBehaviour
     {
         [SerializeField]
         private CanvasGroup[] _canvasGroups = new CanvasGroup[0];
@@ -26,6 +28,7 @@ namespace MimyLab.FukuroUdon
 
         private bool _enableFade;
         private AnimationCurve _fadeCurve;
+        private VRCCameraSettings _camera;
 
         private bool _initialized = false;
         private void Initialize()
@@ -34,13 +37,19 @@ namespace MimyLab.FukuroUdon
 
             _enableFade = !Mathf.Approximately(_fadeEnd - _fadeStart, 0.0f);
             _fadeCurve = AnimationCurve.Linear(_fadeStart, 1.0f, _fadeEnd, 0.0f);
+            _camera = VRCCameraSettings.ScreenCamera;
 
             _initialized = true;
         }
-
-        public override void ReceiveViewPoint(Vector3 position, Quaternion rotation)
+        private void Start()
         {
             Initialize();
+        }
+
+        public override void PostLateUpdate()
+        {
+            if (!Utilities.IsValid(_camera)) { return; }
+            var position = _camera.Position;
 
             foreach (var canvasGroup in _canvasGroups)
             {

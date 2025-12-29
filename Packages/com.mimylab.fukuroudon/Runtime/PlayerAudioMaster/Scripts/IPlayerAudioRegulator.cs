@@ -20,23 +20,24 @@ namespace MimyLab.FukuroUdon
 
     public class IPlayerAudioRegulator : UdonSharpBehaviour
     {
-        [Header("Options")]
+        [Header("Filter Settings")]
+        public bool othersOnly = false;
+        public string[] allowedPlayerNameList = new string[0];
+
+        [Header("Channel Settings")]
         public bool enableChannelMode = false;
         [Min(0)]
         public int channel = 0;
         public PlayerAudioRegulatorChannelUncmatchMode channelUnmatchMode = default;
         public IPlayerAudioRegulator unmatchFallback = null;
-        [Space]
-        public bool othersOnly = false;
-        public string[] allowedPlayerNameList = new string[0];
 
         [Header("Player Voice Settings")]
         public bool enablePlayerVoiceOverride = true;
         [Range(0f, 24f)]
         public float voiceGain = 15f;
-        [Range(0f, 999999.9f)]
+        [Range(0f, 1000000.0f)]
         public float voiceDistanceNear = 0f;
-        [Range(0f, 999999.9f)]
+        [Range(0f, 1000000.0f)]
         public float voiceDistanceFar = 25f;
 
         [Header("Player Voice Advance Settings")]
@@ -63,7 +64,8 @@ namespace MimyLab.FukuroUdon
 
         public bool CheckApplicable(VRCPlayerApi target)
         {
-            if (!enabled || !gameObject.activeInHierarchy) { return false; }
+            if (!this.enabled) { return false; }
+            if (!this.gameObject.activeInHierarchy) { return false; }
             if (othersOnly && target.isLocal) { return false; }
             if (!EligiblePlayer(target)) { return false; }
 

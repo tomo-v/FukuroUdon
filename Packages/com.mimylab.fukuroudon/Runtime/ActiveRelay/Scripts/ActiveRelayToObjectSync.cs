@@ -22,8 +22,8 @@ namespace MimyLab.FukuroUdon
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Active-Relay#activerelay-to-objectsync")]
     [Icon(ComponentIconPath.FukuroUdon)]
-    [AddComponentMenu("Fukuro Udon/Active Relay/ActiveRelay to ObjectSync")]
-    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
+    [AddComponentMenu("Fukuro Udon/ActiveRelay to/ActiveRelay to ObjectSync")]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class ActiveRelayToObjectSync : UdonSharpBehaviour
     {
         [SerializeField]
