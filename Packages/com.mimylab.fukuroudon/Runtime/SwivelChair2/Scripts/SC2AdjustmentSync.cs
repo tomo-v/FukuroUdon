@@ -22,7 +22,7 @@ namespace MimyLab.FukuroUdon
         public int linkNumber = 0;
 
         [UdonSynced]
-        internal bool hasSaved = false;
+        internal bool _hasSaved = false;
         [UdonSynced]
         private Vector3 _localOffset;
 
@@ -41,7 +41,7 @@ namespace MimyLab.FukuroUdon
                 {
                     if (_linkedAdjustmentSyncs == null) { _linkedAdjustmentSyncs = GetLinkedAdjustmentSyncs(); }
 
-                    foreach (var linkee in _linkedAdjustmentSyncs)
+                    foreach (SC2AdjustmentSync linkee in _linkedAdjustmentSyncs)
                     {
                         linkee.LinkLocalOffset(this);
                     }
@@ -57,8 +57,8 @@ namespace MimyLab.FukuroUdon
                 return;
             }
 
-            _adjuster = GetComponentInParent<SwivelChair2>(true).seatAdjuster;
-            _adjuster.adjustmentSync = this;
+            _adjuster = GetComponentInParent<SwivelChair2>(true)._seatAdjuster;
+            _adjuster._adjustmentSync = this;
         }
 
         public void LinkLocalOffset(SC2AdjustmentSync linker)
@@ -69,16 +69,16 @@ namespace MimyLab.FukuroUdon
         private void SetLocalOffset(Vector3 value)
         {
             _localOffset = value;
-            hasSaved = true;
+            _hasSaved = true;
             RequestSerialization();
         }
 
         private SC2AdjustmentSync[] GetLinkedAdjustmentSyncs()
         {
-            var playerObjects = Networking.LocalPlayer.GetPlayerObjects();
+            GameObject[] playerObjects = Networking.LocalPlayer.GetPlayerObjects();
             var linkedAdjustmentSyncs = new SC2AdjustmentSync[playerObjects.Length];
             var count = 0;
-            foreach (var playerObject in playerObjects)
+            foreach (GameObject playerObject in playerObjects)
             {
                 var adjustmentSync = playerObject.GetComponent<SC2AdjustmentSync>();
                 if (adjustmentSync &&

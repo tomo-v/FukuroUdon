@@ -28,13 +28,13 @@ namespace MimyLab.FukuroUdon
         [Min(0.0f), Tooltip("degree/sec")]
         public float rotateSpeed = 60.0f;
 
-        internal SwivelChair2 swivelChair2;
-        internal SC2AdjustmentSync adjustmentSync;
-
         [UdonSynced, FieldChangeCallback(nameof(Offset))]
         private Vector3 _offset;
         [UdonSynced, FieldChangeCallback(nameof(Direction))]
         private Quaternion _direction;
+
+        internal SwivelChair2 _swivelChair2;
+        internal SC2AdjustmentSync _adjustmentSync;
 
         private VRCStation _station;
         private Transform _seat;
@@ -66,11 +66,11 @@ namespace MimyLab.FukuroUdon
 
         private Vector3 LocalOffset
         {
-            get => adjustmentSync && adjustmentSync.hasSaved ? adjustmentSync.LocalOffset : _localOffset;
+            get => _adjustmentSync && _adjustmentSync._hasSaved ? _adjustmentSync.LocalOffset : _localOffset;
             set
             {
                 _localOffset = value;
-                if (adjustmentSync) { adjustmentSync.LocalOffset = value; }
+                if (_adjustmentSync) { _adjustmentSync.LocalOffset = value; }
             }
         }
 
@@ -104,7 +104,7 @@ namespace MimyLab.FukuroUdon
         {
             if (!player.isLocal) { return; }
 
-            swivelChair2.OnSitDown();
+            _swivelChair2.OnSitDown();
 
             Networking.SetOwner(player, this.gameObject);
 
@@ -115,7 +115,7 @@ namespace MimyLab.FukuroUdon
         {
             if (!player.isLocal) { return; }
 
-            swivelChair2.OnStandUp();
+            _swivelChair2.OnStandUp();
 
             LocalOffset = Offset;
         }
@@ -134,8 +134,8 @@ namespace MimyLab.FukuroUdon
 
         public void Revolve(float inputValue)
         {
-            var angle = Time.deltaTime * rotateSpeed * inputValue;
-            var result = _direction * Quaternion.AngleAxis(angle, Vector3.up);
+            float angle = Time.deltaTime * rotateSpeed * inputValue;
+            Quaternion result = _direction * Quaternion.AngleAxis(angle, Vector3.up);
 
             if (Mathf.Approximately(angle, 0.0f))
             {
@@ -150,8 +150,8 @@ namespace MimyLab.FukuroUdon
 
         public void Adjust(Vector3 inputValue)
         {
-            var shift = Time.deltaTime * adjustSpeed * inputValue;
-            var result = _offset + shift;
+            Vector3 shift = Time.deltaTime * adjustSpeed * inputValue;
+            Vector3 result = _offset + shift;
 
             result = Vector3.Max(result, adjustMinLimit);
             result = Vector3.Min(result, adjustMaxLimit);
