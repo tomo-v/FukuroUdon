@@ -23,15 +23,15 @@ namespace MimyLab.FukuroUdon
         public bool enableRotation = true;
 
         // Updateで使う変数キャッシュ用
-        protected VRCPlayerApi _localPlayer;
+        internal VRCPlayerApi _localPlayer;
 
-        protected void OnEnable()
+        private void OnEnable()
         {
             _localPlayer = Networking.LocalPlayer;
 
             // 初期位置にリセット
-            var pos = enablePosition ? _localPlayer.GetTrackingData(trackingPoint).position : transform.position;
-            var rot = enableRotation ? _localPlayer.GetTrackingData(trackingPoint).rotation : transform.rotation;
+            Vector3 pos = enablePosition ? _localPlayer.GetTrackingData(trackingPoint).position : transform.position;
+            Quaternion rot = enableRotation ? _localPlayer.GetTrackingData(trackingPoint).rotation : transform.rotation;
             transform.SetPositionAndRotation(pos, rot);
         }
 
@@ -40,8 +40,8 @@ namespace MimyLab.FukuroUdon
             if (!enablePosition & !enableRotation) { return; }
             if (!Utilities.IsValid(_localPlayer)) { return; }
 
-            var pos = enablePosition ? GetTrackingPosition(trackingPoint) : transform.position;
-            var rot = enableRotation ? GetTrackingRotation(trackingPoint) : transform.rotation;
+            Vector3 pos = enablePosition ? GetTrackingPosition(trackingPoint) : transform.position;
+            Quaternion rot = enableRotation ? GetTrackingRotation(trackingPoint) : transform.rotation;
             transform.SetPositionAndRotation(pos, rot);
         }
 

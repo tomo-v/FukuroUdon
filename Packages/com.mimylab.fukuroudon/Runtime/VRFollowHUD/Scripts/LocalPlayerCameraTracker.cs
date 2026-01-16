@@ -29,14 +29,14 @@ namespace MimyLab.FukuroUdon
         public bool enablePosition = true;
         public bool enableRotation = true;
 
-        protected void OnEnable()
+        private void OnEnable()
         {
-            var camera = GetCamera(trackingPoint);
+            VRCCameraSettings camera = GetCamera(trackingPoint);
             if (Utilities.IsValid(camera))
             {
                 // 初期位置にリセット
-                var pos = enablePosition ? camera.Position : transform.position;
-                var rot = enableRotation ? camera.Rotation : transform.rotation;
+                Vector3 pos = enablePosition ? camera.Position : transform.position;
+                Quaternion rot = enableRotation ? camera.Rotation : transform.rotation;
                 transform.SetPositionAndRotation(pos, rot);
             }
         }
@@ -45,12 +45,12 @@ namespace MimyLab.FukuroUdon
         {
             if (!enablePosition & !enableRotation) { return; }
 
-            var camera = GetCamera(trackingPoint);
+            VRCCameraSettings camera = GetCamera(trackingPoint);
             if (Utilities.IsValid(camera))
             {
                 // 初期位置にリセット
-                var pos = enablePosition ? GetTrackingPosition(camera) : transform.position;
-                var rot = enableRotation ? GetTrackingRotation(camera) : transform.rotation;
+                Vector3 pos = enablePosition ? GetTrackingPosition(camera) : transform.position;
+                Quaternion rot = enableRotation ? GetTrackingRotation(camera) : transform.rotation;
                 transform.SetPositionAndRotation(pos, rot);
             }
         }
@@ -68,7 +68,7 @@ namespace MimyLab.FukuroUdon
             return trackingTarget.Rotation;
         }
 
-        protected VRCCameraSettings GetCamera(LocalPlayerCameraTrackerCameraType cameraType)
+        private VRCCameraSettings GetCamera(LocalPlayerCameraTrackerCameraType cameraType)
         {
             VRCCameraSettings camera = null;
             switch (cameraType)

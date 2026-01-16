@@ -9,11 +9,12 @@ namespace MimyLab.FukuroUdon
     using UdonSharp;
     using UnityEngine;
     //using VRC.SDKBase;
-    //using VRC.Udon;
 
 #if UNITY_EDITOR
     using UnityEditor;
     using UnityEditor.SceneManagement;
+    using UnityEngine.SceneManagement;
+
     //using UdonSharpEditor;
 #endif
 
@@ -22,7 +23,7 @@ namespace MimyLab.FukuroUdon
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class MOSUpdateManager : UdonSharpBehaviour
     {
-        internal float respawnHeightY = -100.0f;
+        internal float _respawnHeightY = -100.0f;
         private ManualObjectSync[] _mosList = new ManualObjectSync[0];
 
 #if !COMPILER_UDONSHARP && UNITY_EDITOR
@@ -37,18 +38,18 @@ namespace MimyLab.FukuroUdon
             if (PrefabStageUtility.GetCurrentPrefabStage() != null) { return; }
             if (PrefabUtility.IsPartOfPrefabAsset(this)) { return; }
 
-            var scene = this.gameObject.scene;
+            Scene scene = this.gameObject.scene;
             if (!scene.IsValid()) { return; }
             if (!scene.isLoaded) { return; }
 
-            var rootObjects = scene.GetRootGameObjects();
-            foreach (var obj in rootObjects)
+            GameObject[] rootObjects = scene.GetRootGameObjects();
+            foreach (GameObject obj in rootObjects)
             {
-                var tmp_mosList = obj.GetComponentsInChildren<ManualObjectSync>(true);
-                foreach (var tmp_mos in tmp_mosList)
+                ManualObjectSync[] tmp_mosList = obj.GetComponentsInChildren<ManualObjectSync>(true);
+                foreach (ManualObjectSync tmp_mos in tmp_mosList)
                 {
                     tmp_mos.SetUpdateManager(this);
-                    tmp_mos.SetRespawnHeightY(respawnHeightY);
+                    tmp_mos.SetRespawnHeightY(_respawnHeightY);
                     tmp_mos.RecordSelf();
                 }
             }
@@ -58,7 +59,7 @@ namespace MimyLab.FukuroUdon
         public override void PostLateUpdate()
         {
             var pauseUpdate = true;
-            foreach (var mos in _mosList)
+            foreach (ManualObjectSync mos in _mosList)
             {
                 if (mos)
                 {
@@ -78,7 +79,7 @@ namespace MimyLab.FukuroUdon
         {
             this.enabled = true;
 
-            var index = System.Array.IndexOf(_mosList, mos);
+            int index = System.Array.IndexOf(_mosList, mos);
             if (index > -1) { return; }
 
             index = System.Array.IndexOf(_mosList, null);
@@ -99,7 +100,7 @@ namespace MimyLab.FukuroUdon
         {
             if (_mosList.Length < 1) { return; }
 
-            var index = System.Array.IndexOf(_mosList, mos);
+            int index = System.Array.IndexOf(_mosList, mos);
             if (index > -1)
             {
                 _mosList[index] = null;

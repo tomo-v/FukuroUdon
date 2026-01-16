@@ -9,9 +9,9 @@ namespace MimyLab.FukuroUdon
     using UdonSharp;
     using UnityEngine;
     using VRC.SDKBase;
-    using VRC.Udon;
     using VRC.SDK3.Components;
     using VRC.SDK3.UdonNetworkCalling;
+    using VRC.Udon;
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Manual-ObjectSync#resetswitch-for-objectsync")]
     [Icon(ComponentIconPath.FukuroUdon)]
@@ -72,7 +72,7 @@ namespace MimyLab.FukuroUdon
         {
             Initialize();
 
-            var resetTime = Time.time;
+            float resetTime = Time.time;
             if (resetTime < _lastResetTime + _interval) { return; }
             _lastResetTime = resetTime;
 

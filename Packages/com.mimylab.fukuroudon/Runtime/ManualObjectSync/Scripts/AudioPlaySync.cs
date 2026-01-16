@@ -9,7 +9,6 @@ namespace MimyLab.FukuroUdon
     using UdonSharp;
     using UnityEngine;
     using VRC.SDKBase;
-    using VRC.Udon;
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Manual-ObjectSync#audio-play-sync")]
     [Icon(ComponentIconPath.FukuroUdon)]
@@ -126,8 +125,8 @@ namespace MimyLab.FukuroUdon
 
             if (sync_isPlaying)
             {
-                var currentPlayStartTime = Networking.GetServerTimeInSeconds() - _audioSource.time;
-                var differenceTime = Networking.CalculateServerDeltaTime(currentPlayStartTime, sync_latestPlayStartTime);
+                double currentPlayStartTime = Networking.GetServerTimeInSeconds() - _audioSource.time;
+                double differenceTime = Networking.CalculateServerDeltaTime(currentPlayStartTime, sync_latestPlayStartTime);
                 if (differenceTime > TimeTolerance || differenceTime < -TimeTolerance)
                 {
                     sync_latestPlayStartTime = currentPlayStartTime;

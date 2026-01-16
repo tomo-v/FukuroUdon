@@ -18,7 +18,7 @@ namespace MimyLab.FukuroUdon
         Pretend,
     }
 
-    public class IPlayerAudioRegulator : UdonSharpBehaviour
+    public abstract class PlayerAudioRegulator : UdonSharpBehaviour
     {
         [Header("Filter Settings")]
         public bool othersOnly = false;
@@ -29,7 +29,7 @@ namespace MimyLab.FukuroUdon
         [Min(0)]
         public int channel = 0;
         public PlayerAudioRegulatorChannelUncmatchMode channelUnmatchMode = default;
-        public IPlayerAudioRegulator unmatchFallback = null;
+        public PlayerAudioRegulator unmatchFallback = null;
 
         [Header("Player Voice Settings")]
         public bool enablePlayerVoiceOverride = true;
@@ -72,6 +72,14 @@ namespace MimyLab.FukuroUdon
             return CheckApplicableInternal(target);
         }
 
+        public bool EligiblePlayer(VRCPlayerApi target)
+        {
+            if (allowedPlayerNameList.Length == 0) { return true; }
+            if (System.Array.IndexOf(allowedPlayerNameList, target.displayName) > -1) { return true; }
+
+            return false;
+        }
+
         public bool OverridePlayerVoice(VRCPlayerApi target)
         {
             if (enablePlayerVoiceOverride)
@@ -101,14 +109,6 @@ namespace MimyLab.FukuroUdon
             return enableAvatarAudioOverride;
         }
 
-        protected bool EligiblePlayer(VRCPlayerApi target)
-        {
-            if (allowedPlayerNameList.Length == 0) { return true; }
-            if (System.Array.IndexOf(allowedPlayerNameList, target.displayName) > -1) { return true; }
-
-            return false;
-        }
-
-        protected virtual bool CheckApplicableInternal(VRCPlayerApi target) { return false; }
+        protected abstract bool CheckApplicableInternal(VRCPlayerApi target);
     }
 }

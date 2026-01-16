@@ -8,10 +8,10 @@ namespace MimyLab.FukuroUdon
 {
     using UdonSharp;
     using UnityEngine;
-    using VRC.SDKBase;
-    using VRC.Udon.Common.Interfaces;
     using VRC.Dynamics;
+    using VRC.SDKBase;
     using VRC.SDK3.Dynamics.Contact.Components;
+    using VRC.Udon.Common.Interfaces;
 
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Active-Relay#activerelay-by-contact")]
     [Icon(ComponentIconPath.FukuroUdon)]
@@ -36,7 +36,7 @@ namespace MimyLab.FukuroUdon
                 case ActiveRelayCollisionEventType.Enter:
                     if (contactInfo.enterVelocity.sqrMagnitude < _minVelocity * _minVelocity) { return; }
 
-                    var player = contactInfo.contactSender.player;
+                    VRCPlayerApi player = contactInfo.contactSender.player;
                     player = Utilities.IsValid(player) ? player : Networking.LocalPlayer;
                     if (CheckAccept(player)) { DoAction(player); }
                     break;
@@ -49,7 +49,7 @@ namespace MimyLab.FukuroUdon
             {
                 case ActiveRelayCollisionEventType.EnterAndExit:
                 case ActiveRelayCollisionEventType.Exit:
-                    var player = contactInfo.contactSender.player;
+                    VRCPlayerApi player = contactInfo.contactSender.player;
                     player = Utilities.IsValid(player) ? player : Networking.LocalPlayer;
                     if (CheckAccept(player)) { DoAction(player); }
                     break;
