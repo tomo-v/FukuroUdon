@@ -20,29 +20,29 @@ namespace MimyLab.FukuroUdon
     [Icon(ComponentIconPath.FukuroUdon)]
     [AddComponentMenu("Fukuro Udon/ActiveRelay to/ActiveRelay to AvatarScaling")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class ActiveRelayToAvatarScaling : UdonSharpBehaviour
+    public class ActiveRelayToAvatarScaling : ActiveRelayTo
     {
         [SerializeField]
-        private ActiveRelayEventType _eventType = default;
+        private ActiveRelayActiveEvent _eventType = default;
 
         [SerializeField]
         private ActiveRelayToAvatarScalingSetMode _setMode = default;
         [SerializeField, Range(0.1f, 100f)]
         private float _avatarEyeHeight = 1.3f;
 
-        private void OnEnable()
+        private protected override void OnEnable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive
-             || _eventType == ActiveRelayEventType.Active)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Active)
             {
                 SetAvatarEyeHeight();
             }
         }
 
-        private void OnDisable()
+        private protected override void OnDisable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive
-             || _eventType == ActiveRelayEventType.Inactive)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Inactive)
             {
                 SetAvatarEyeHeight();
             }

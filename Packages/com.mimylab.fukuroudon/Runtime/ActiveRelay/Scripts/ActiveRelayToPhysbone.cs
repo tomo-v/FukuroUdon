@@ -16,10 +16,10 @@ namespace MimyLab.FukuroUdon
     [Icon(ComponentIconPath.FukuroUdon)]
     [AddComponentMenu("Fukuro Udon/ActiveRelay to/ActiveRelay to Physbone")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-    public class ActiveRelayToPhysbone : UdonSharpBehaviour
+    public class ActiveRelayToPhysbone : ActiveRelayTo
     {
         [SerializeField]
-        private ActiveRelayEventType _eventType = default;
+        private ActiveRelayActiveEvent _eventType = default;
         [SerializeField]
         private VRCPhysBone[] _physbones = new VRCPhysBone[0];
         [SerializeField]
@@ -27,20 +27,20 @@ namespace MimyLab.FukuroUdon
         [SerializeField]
         private bool _releasePoses = true;
 
-        private void OnEnable()
+        private protected override void OnEnable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive
-             || _eventType == ActiveRelayEventType.Active)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Active)
             {
                 if (_releaseGrabs) { SendCustomNetworkEvent(NetworkEventTarget.All, nameof(ReleaseGrabs)); }
                 if (_releasePoses) { SendCustomNetworkEvent(NetworkEventTarget.All, nameof(ReleasePoses)); }
             }
         }
 
-        private void OnDisable()
+        private protected override void OnDisable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive
-             || _eventType == ActiveRelayEventType.Inactive)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Inactive)
             {
                 if (_releaseGrabs) { SendCustomNetworkEvent(NetworkEventTarget.All, nameof(ReleaseGrabs)); }
                 if (_releasePoses) { SendCustomNetworkEvent(NetworkEventTarget.All, nameof(ReleasePoses)); }

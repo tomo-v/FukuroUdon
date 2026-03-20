@@ -18,11 +18,18 @@ namespace MimyLab.FukuroUdon
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class SC2SeatAdjuster : UdonSharpBehaviour
     {
+        [Header("Position Settings")]
         public Vector3 adjustMinLimit = new Vector3(0.0f, -0.5f, -0.3f);
         public Vector3 adjustMaxLimit = new Vector3(0.0f, 0.5f, 0.3f);
         [Min(0.0f), Tooltip("meter/sec")]
         public float adjustSpeed = 0.5f;
+
         [Space]
+        public bool autoAdjustWhenSitting = false;
+        [SerializeField]
+        private Transform _seatPoint = null;
+
+        [Header("Rotation Settings")]
         [Min(0.0f), Tooltip("degree")]
         public float forwardSnapThrethold = 5.0f;
         [Min(0.0f), Tooltip("degree/sec")]
@@ -35,11 +42,14 @@ namespace MimyLab.FukuroUdon
 
         internal SwivelChair2 _swivelChair2;
         internal SC2AdjustmentSync _adjustmentSync;
+        internal bool _isSitting = false;
 
         private VRCStation _station;
         private Transform _seat;
         private Transform _enterPoint;
         private Vector3 _localOffset;
+        private bool _hasAvatarChangedSinceStandUp = false;
+        private float _avatarEyeHeight = 0.0f;
 
         private Vector3 Offset
         {
@@ -47,6 +57,8 @@ namespace MimyLab.FukuroUdon
             set
             {
                 Initialize();
+                value = Vector3.Max(value, adjustMinLimit);
+                value = Vector3.Min(value, adjustMaxLimit);
                 _enterPoint.localPosition = value;
                 _offset = value;
                 RequestSerialization();
@@ -64,15 +76,8 @@ namespace MimyLab.FukuroUdon
             }
         }
 
-        private Vector3 LocalOffset
-        {
-            get => _adjustmentSync && _adjustmentSync._hasSaved ? _adjustmentSync.LocalOffset : _localOffset;
-            set
-            {
-                _localOffset = value;
-                if (_adjustmentSync) { _adjustmentSync.LocalOffset = value; }
-            }
-        }
+        private Vector3 LocalOffset { get => _adjustmentSync && _adjustmentSync._hasSaved ? _adjustmentSync._localOffset : _localOffset; }
+        private float AvatarEyeHeight { get => _adjustmentSync && _adjustmentSync._hasSaved ? _adjustmentSync._avatarEyeHeight : _avatarEyeHeight; }
 
         private bool _initialized = false;
         private void Initialize()
@@ -104,20 +109,45 @@ namespace MimyLab.FukuroUdon
         {
             if (!player.isLocal) { return; }
 
-            _swivelChair2.OnSitDown();
+            _isSitting = true;
 
             Networking.SetOwner(player, this.gameObject);
-
             Offset = LocalOffset;
+
+            _swivelChair2.OnSitDown();
+
+            if (autoAdjustWhenSitting &&
+                _hasAvatarChangedSinceStandUp &&
+                player.GetAvatarEyeHeightAsMeters() != AvatarEyeHeight)
+            {
+                SendCustomEventDelayedSeconds(nameof(AutoAdjust), 1.0f);
+            }
         }
 
         public override void OnStationExited(VRCPlayerApi player)
         {
             if (!player.isLocal) { return; }
 
-            _swivelChair2.OnStandUp();
+            _isSitting = false;
+            _hasAvatarChangedSinceStandUp = false;
 
-            LocalOffset = Offset;
+            _localOffset = _offset;
+            _avatarEyeHeight = player.GetAvatarEyeHeightAsMeters();
+            if (_adjustmentSync) { _adjustmentSync.Save(_offset, _avatarEyeHeight); }
+
+            _swivelChair2.OnStandUp();
+        }
+
+        public override void OnAvatarChanged(VRCPlayerApi player)
+        {
+            if (!player.isLocal) { return; }
+
+            _hasAvatarChangedSinceStandUp = true;
+
+            if (autoAdjustWhenSitting && _isSitting)
+            {
+                SendCustomEventDelayedSeconds(nameof(AutoAdjust), 1.0f);
+            }
         }
 
         public void Enter()
@@ -150,13 +180,28 @@ namespace MimyLab.FukuroUdon
 
         public void Adjust(Vector3 inputValue)
         {
-            Vector3 shift = Time.deltaTime * adjustSpeed * inputValue;
-            Vector3 result = _offset + shift;
+            Offset = _offset + (Time.deltaTime * adjustSpeed * inputValue);
+        }
 
-            result = Vector3.Max(result, adjustMinLimit);
-            result = Vector3.Min(result, adjustMaxLimit);
+        public void AutoAdjust()
+        {
+            if (!autoAdjustWhenSitting) { return; }
+            if (!_seatPoint) { return; }
+            if (!_isSitting) { return; }
 
-            Offset = result;
+            VRCPlayerApi localPlayer = Networking.LocalPlayer;
+            Vector3 hipsPosition = localPlayer.GetBonePosition(HumanBodyBones.Hips);
+            if (hipsPosition.Equals(Vector3.zero)) { return; }
+
+            Transform parent = _enterPoint.parent;
+            if (parent)
+            {
+                Offset = _offset + (parent.InverseTransformPoint(_seatPoint.position) - parent.InverseTransformPoint(hipsPosition));
+            }
+            else
+            {
+                Offset = _offset + (_seatPoint.position - hipsPosition);
+            }
         }
     }
 }

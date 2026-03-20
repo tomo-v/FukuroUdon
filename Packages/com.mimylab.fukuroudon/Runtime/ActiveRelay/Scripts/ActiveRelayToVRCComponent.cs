@@ -16,10 +16,10 @@ namespace MimyLab.FukuroUdon
     [Icon(ComponentIconPath.FukuroUdon)]
     [AddComponentMenu("Fukuro Udon/ActiveRelay to/ActiveRelay to VRCComponent")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class ActiveRelayToVRCComponent : UdonSharpBehaviour
+    public class ActiveRelayToVRCComponent : ActiveRelayTo
     {
         [SerializeField]
-        private ActiveRelayEventType _eventType = default;
+        private ActiveRelayActiveEvent _eventType = default;
         [SerializeField, Tooltip("Toggle \"ChangeAvatarOnUse\" bool value")]
         private VRCAvatarPedestal[] _avatarPedestals = new VRCAvatarPedestal[0];
         [SerializeField, Tooltip("Toggle pickupable")]
@@ -31,19 +31,19 @@ namespace MimyLab.FukuroUdon
         [SerializeField]
         private bool _invert = false;
 
-        private void OnEnable()
+        private protected override void OnEnable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive
-             || _eventType == ActiveRelayEventType.Active)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Active)
             {
                 ToggleComponents(!_invert);
             }
         }
 
-        private void OnDisable()
+        private protected override void OnDisable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive
-             || _eventType == ActiveRelayEventType.Inactive)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Inactive)
             {
                 ToggleComponents(_invert);
             }

@@ -10,21 +10,14 @@ namespace MimyLab.FukuroUdon
     using UnityEngine;
     using VRC.SDKBase.Editor.Attributes;
 
-    public enum ActiveRelayEventType
-    {
-        ActiveAndInactive,
-        Active,
-        Inactive,
-    }
-
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Active-Relay#activerelay-to-gameobject")]
     [Icon(ComponentIconPath.FukuroUdon)]
     [AddComponentMenu("Fukuro Udon/ActiveRelay to/ActiveRelay to GameObject")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class ActiveRelayToGameObject : UdonSharpBehaviour
+    public class ActiveRelayToGameObject : ActiveRelayTo
     {
         [SerializeField]
-        private ActiveRelayEventType _eventType = default;
+        private ActiveRelayActiveEvent _eventType = default;
         [SerializeField]
         private GameObject[] _gameObjects = new GameObject[0];
         [SerializeField]
@@ -40,10 +33,10 @@ namespace MimyLab.FukuroUdon
         private int _activateDelayedCount = 0;
         private int _deactivateDelayedCount = 0;
 
-        private void OnEnable()
+        private protected override void OnEnable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive
-             || _eventType == ActiveRelayEventType.Active)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Active)
             {
                 if (_delayTime > 0.0f)
                 {
@@ -64,10 +57,10 @@ namespace MimyLab.FukuroUdon
             }
         }
 
-        private void OnDisable()
+        private protected override void OnDisable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive
-             || _eventType == ActiveRelayEventType.Inactive)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Inactive)
             {
                 if (_delayTime > 0.0f)
                 {

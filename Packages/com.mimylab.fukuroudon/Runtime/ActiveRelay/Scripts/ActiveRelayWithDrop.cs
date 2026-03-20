@@ -14,11 +14,11 @@ namespace MimyLab.FukuroUdon
     [Icon(ComponentIconPath.FukuroUdon)]
     [AddComponentMenu("Fukuro Udon/ActiveRelay with/ActiveRelay with Drop")]
     [RequireComponent(typeof(VRCPickup))]
-    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Any)]
     public class ActiveRelayWithDrop : UdonSharpBehaviour
     {
         [SerializeField]
-        private ActiveRelayEventType _eventType = ActiveRelayEventType.Inactive;
+        private ActiveRelayActiveEvent _eventType = ActiveRelayActiveEvent.Inactive;
 
         private VRCPickup _pickup;
 
@@ -36,8 +36,8 @@ namespace MimyLab.FukuroUdon
         {
             Initialize();
 
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive ||
-                _eventType == ActiveRelayEventType.Active)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive ||
+                _eventType == ActiveRelayActiveEvent.Active)
             {
                 DropThis();
             }
@@ -45,8 +45,8 @@ namespace MimyLab.FukuroUdon
 
         private void OnDisable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive ||
-                _eventType == ActiveRelayEventType.Inactive)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive ||
+                _eventType == ActiveRelayActiveEvent.Inactive)
             {
                 DropThis();
             }

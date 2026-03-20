@@ -9,21 +9,14 @@ namespace MimyLab.FukuroUdon
     using UdonSharp;
     using UnityEngine;
 
-    public enum ActiveRelayToAnimatorEventType
-    {
-        Active,
-        Inactive,
-        ActiveAndInactive,
-    }
-
     [HelpURL("https://github.com/mimyquality/FukuroUdon/wiki/Active-Relay#activerelay-to-animator")]
     [Icon(ComponentIconPath.FukuroUdon)]
     [AddComponentMenu("Fukuro Udon/ActiveRelay to/ActiveRelay to Animator")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class ActiveRelayToAnimator : UdonSharpBehaviour
+    public class ActiveRelayToAnimator : ActiveRelayTo
     {
         [SerializeField]
-        private ActiveRelayToAnimatorEventType _eventType = default;
+        private ActiveRelayActiveEvent _eventType = ActiveRelayActiveEvent.Active;
         [SerializeField]
         private Animator _animator = null;
 
@@ -67,21 +60,21 @@ namespace MimyLab.FukuroUdon
             _initialized = true;
         }
 
-        private void OnEnable()
+        private protected override void OnEnable()
         {
             Initialize();
 
-            if (_eventType == ActiveRelayToAnimatorEventType.ActiveAndInactive
-             || _eventType == ActiveRelayToAnimatorEventType.Active)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Active)
             {
                 TrySetValue();
             }
         }
 
-        private void OnDisable()
+        private protected override void OnDisable()
         {
-            if (_eventType == ActiveRelayToAnimatorEventType.ActiveAndInactive
-             || _eventType == ActiveRelayToAnimatorEventType.Inactive)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive
+             || _eventType == ActiveRelayActiveEvent.Inactive)
             {
                 TrySetValue();
             }
