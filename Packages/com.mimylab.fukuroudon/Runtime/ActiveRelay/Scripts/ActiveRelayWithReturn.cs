@@ -17,7 +17,7 @@ namespace MimyLab.FukuroUdon
     public class ActiveRelayWithReturn : UdonSharpBehaviour
     {
         [SerializeField]
-        private ActiveRelayEventType _eventType = ActiveRelayEventType.Inactive;
+        private ActiveRelayActiveEvent _eventType = ActiveRelayActiveEvent.Inactive;
         [SerializeField, EnumFlag]
         private ActiveRelayToTransformChangeProperties _changeProperty =
             ActiveRelayToTransformChangeProperties.Position |
@@ -68,8 +68,8 @@ namespace MimyLab.FukuroUdon
         {
             Initialize();
 
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive ||
-                _eventType == ActiveRelayEventType.Active)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive ||
+                _eventType == ActiveRelayActiveEvent.Active)
             {
                 switch (_relativeTo)
                 {
@@ -81,8 +81,8 @@ namespace MimyLab.FukuroUdon
 
         private void OnDisable()
         {
-            if (_eventType == ActiveRelayEventType.ActiveAndInactive ||
-                _eventType == ActiveRelayEventType.Inactive)
+            if (_eventType == ActiveRelayActiveEvent.ActiveAndInactive ||
+                _eventType == ActiveRelayActiveEvent.Inactive)
             {
                 switch (_relativeTo)
                 {

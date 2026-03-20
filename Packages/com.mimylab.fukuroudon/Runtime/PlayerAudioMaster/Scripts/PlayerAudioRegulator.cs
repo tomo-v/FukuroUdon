@@ -64,12 +64,11 @@ namespace MimyLab.FukuroUdon
 
         public bool CheckApplicable(VRCPlayerApi target)
         {
-            if (!this.enabled) { return false; }
-            if (!this.gameObject.activeInHierarchy) { return false; }
+            if (!this.isActiveAndEnabled) { return false; }
             if (othersOnly && target.isLocal) { return false; }
             if (!EligiblePlayer(target)) { return false; }
 
-            return CheckApplicableInternal(target);
+            return CheckUniqueApplicable(target);
         }
 
         public bool EligiblePlayer(VRCPlayerApi target)
@@ -109,6 +108,6 @@ namespace MimyLab.FukuroUdon
             return enableAvatarAudioOverride;
         }
 
-        protected abstract bool CheckApplicableInternal(VRCPlayerApi target);
+        protected abstract bool CheckUniqueApplicable(VRCPlayerApi target);
     }
 }
