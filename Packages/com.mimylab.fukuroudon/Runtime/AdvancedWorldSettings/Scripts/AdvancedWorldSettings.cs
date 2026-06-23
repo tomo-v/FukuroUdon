@@ -46,22 +46,22 @@ namespace MimyLab.FukuroUdon
         [Header("Player Voice")]
         [SerializeField] private bool _initializePlayerVoice = true;
         [SerializeField][Range(0f, 24f)] private float _voiceGain = 15f;
-        [SerializeField][Range(0f, 999999f)] private float _voiceDistanceNear = 0f;
-        [SerializeField][Range(0f, 999999f)] private float _voiceDistanceFar = 25f;
+        [SerializeField][Range(0f, 1000000f)] private float _voiceDistanceNear = 0f;
+        [SerializeField][Range(0f, 1000000f)] private float _voiceDistanceFar = 25f;
         [Space]
-        [SerializeField][Range(0f, 999999f)] private float _voiceVolumetricRadius = 0f;
+        [SerializeField][Range(0f, 1000f)] private float _voiceVolumetricRadius = 0f;
         [SerializeField] private bool _voiceLowpass = true;
 
         [Header("Avatar Audio")]
         [Tooltip("Note that this is compared to the audio source's settings, and the smaller value is used.")]
-        [SerializeField] private bool _initializeAvatarAudio = true;
+        [SerializeField] private bool _initializeAvatarAudio = false;
         [SerializeField][Range(0f, 10f)] private float _avatarAudioGain = 10f;
         [SerializeField][Min(0f)] private float _avatarAudioDistanceNear = 0f;
         [SerializeField][Min(0f)] private float _avatarAudioDistanceFar = 40f;
         [Space]
         [SerializeField][Min(0f)] private float _avatarAudioVolumetricRadius = 0f;
         [SerializeField] private bool _avatarAudioForceSpatial = false;
-        [SerializeField] private bool _avatarAudioCustomCurve = false;
+        [HideInInspector][SerializeField] private bool _avatarAudioCustomCurve = false;
 
         [Header("Avatar Scaling")]
         [SerializeField] private bool _initializeAvatarScaling = true;
@@ -71,8 +71,8 @@ namespace MimyLab.FukuroUdon
         [Space]
         [Tooltip("When the button is checked, the Avatar Eye Height is Clamped at that point.")]
         [SerializeField][EnumFlag] private AdvancedWorldSettingsInitializeEyeHeightTypes _initializeAvatarEyeHight = 0;
-        [SerializeField][Range(0.1f, 100f)] private float _avatarEyeHeightLowerLimit = 1.3f;
-        [SerializeField][Range(0.1f, 100f)] private float _avatarEyeHeightUpperLimit = 1.3f;
+        [SerializeField][Range(0.01f, 10000f)] private float _avatarEyeHeightLowerLimit = 0.1f;
+        [SerializeField][Range(0.01f, 10000f)] private float _avatarEyeHeightUpperLimit = 100f;
 
         [Header("Screen Camera Settings")]
         [SerializeField] private bool _initializeScreenCameraSettings = false;
@@ -111,7 +111,7 @@ namespace MimyLab.FukuroUdon
         [SerializeField][Range(0.0f, 1.0f)] private float _shadowCascade4Split2 = 14f / 30f;
 
         private VRCPlayerApi _localPlayer;
-        private bool _hasFirstAvatarChanged = false;
+        private bool _isFirstAvatarChanged = true;
 
 #if !COMPILER_UDONSHARP && UNITY_EDITOR
         private void OnValidate()
@@ -215,7 +215,8 @@ namespace MimyLab.FukuroUdon
                 player.SetAvatarAudioFarRadius(_avatarAudioDistanceFar);
                 player.SetAvatarAudioVolumetricRadius(_avatarAudioVolumetricRadius);
                 player.SetAvatarAudioForceSpatial(_avatarAudioForceSpatial);
-                player.SetAvatarAudioCustomCurve(_avatarAudioCustomCurve);
+                //player.SetAvatarAudioCustomCurve(_avatarAudioCustomCurve);
+                var tmp = _avatarAudioCustomCurve;    // 未使用変数警告対策
             }
         }
 
@@ -223,21 +224,21 @@ namespace MimyLab.FukuroUdon
         {
             if (!player.isLocal) { return; }
 
-            if (_hasFirstAvatarChanged)
-            {
-                if (((int)_initializeAvatarEyeHight & (int)AdvancedWorldSettingsInitializeEyeHeightTypes.AvatarChange) > 0)
-                {
-                    ClampAvatarEyeHeight();
-                }
-            }
-            else
+            if (_isFirstAvatarChanged)
             {
                 if (((int)_initializeAvatarEyeHight & (int)AdvancedWorldSettingsInitializeEyeHeightTypes.Join) > 0)
                 {
                     ClampAvatarEyeHeight();
                 }
 
-                _hasFirstAvatarChanged = true;
+                _isFirstAvatarChanged = false;
+            }
+            else
+            {
+                if (((int)_initializeAvatarEyeHight & (int)AdvancedWorldSettingsInitializeEyeHeightTypes.AvatarChange) > 0)
+                {
+                    ClampAvatarEyeHeight();
+                }
             }
         }
 
