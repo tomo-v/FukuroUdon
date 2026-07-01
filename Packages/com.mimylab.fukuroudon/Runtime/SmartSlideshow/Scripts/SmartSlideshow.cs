@@ -86,12 +86,7 @@ namespace MimyLab.FukuroUdon
             if (v > 0.0f)
             {
                 PageLoop = true;
-
-                _autoSlideHandle.SetDuration(v);
-                if (!_autoSlideHandle.IsPlaying)
-                {
-                    _autoSlideHandle.Play();
-                }
+                RestartAutoSlide();
 
                 // PageSelectでFeedbackするので省略
                 // FeedbackController();
@@ -131,7 +126,7 @@ namespace MimyLab.FukuroUdon
                 _endPage[i] = literatures[i].EndPage;
             }
             _autoSlideHandle = VRCTween.DelayedCall(this, nameof(PageAutoIncrement), 1.0f)
-                .SetLoops(-1, VRCTweenLoopType.Restart);
+                .Pause();
             AutoSlide = _autoSlide;
 
             RefreshView();
@@ -246,14 +241,24 @@ namespace MimyLab.FukuroUdon
 
         public void PageAutoIncrement()
         {
-            if (IsGlobal && !Networking.IsOwner(this.gameObject)) { return; }
+            if (!(IsGlobal && !Networking.IsOwner(this.gameObject)))
+            {
+                PageIncrement();
+            }
 
-            PageIncrement();
+            RestartAutoSlide();
         }
 
         /******************************
          Local events
         ******************************/
+        private void RestartAutoSlide()
+        {
+            if (_autoSlide <= 0.0f) { return; }
+
+            _autoSlideHandle.SetDuration(_autoSlide).Restart();
+        }
+
         private void RefreshView()
         {
             for (int i = 0; i < literatures.Length; i++)
